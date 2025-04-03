@@ -1,0 +1,317 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoFlix - Tu App de Streaming</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <span>Servicio de streaming</span>
+            </div>
+            <div class="user-info">
+                <div class="user-profile">
+                    <div class="user-avatar">{{ username[0].upper() }}</div>
+                    <span class="user-name">{{ username }}</span>
+                </div>
+                <div class="connection-status online" id="connection-status">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">En línea</span>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <span>Cerrar sesion</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="message-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="message {{ category }}">
+                            {% if category == 'success' %}
+                                <i class="fas fa-check-circle"></i>
+                            {% elif category == 'error' %}
+                                <i class="fas fa-exclamation-circle"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle"></i>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <div class="video-section">
+            <h2 class="section-title">
+                <i class="fas fa-film"></i>
+                Videos Disponibles en local
+            </h2>
+            <div class="video-grid">
+                {% for video in videos %}
+                <div class="video-card" data-src="/videos/{{ video }}">
+                    <video width="320" height="240" controls>
+                        <source src="/videos/{{ video }}" type="video/mp4">
+                        Tu navegador no soporta la reproducción de videos.
+                    </video>
+                    <div class="video-info">
+                        <div class="video-name">{{ video }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <h2 class="section-title">
+                <i class="fas fa-film"></i>
+                Videos en linea
+            </h2>
+            
+            <div class="video-grid" id="video-grid">
+                {% for video in videos %}
+                <div class="video-card" data-src="/videos/{{ video }}" data-name="{{ video }}">
+                    <div class="video-thumbnail">
+                        <i class="fas fa-film"></i>
+                        <div class="play-overlay">
+                            <div class="play-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-name">{{ video }}</div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress" style="width: {{ history.get(video, 0) * 100 }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="player-section" id="player-section">
+            <div class="video-title" id="current-video-title">Selecciona un video para reproducir</div>
+            <div class="video-player-container">
+                <video id="video-player" class="video-player" controls></video>
+                <div class="loading-overlay" id="loading-overlay">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoPlayer = document.getElementById('video-player');
+            const videoCards = document.querySelectorAll('.video-card');
+            const connectionStatus = document.getElementById('connection-status');
+            const statusText = connectionStatus.querySelector('.status-text');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const currentVideoTitle = document.getElementById('current-video-title');
+            const videoCache = new Map();
+            let currentVideoUrl = '';
+            let currentVideoName = '';
+            let isUpdatingProgress = false;
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 300);
+                }, 5000);
+            });
+            function updateOnlineStatus() {
+                if (navigator.onLine) {
+                    connectionStatus.className = 'connection-status online';
+                    statusText.textContent = 'En línea';
+                } else {
+                    connectionStatus.className = 'connection-status offline';
+                    statusText.textContent = 'Desconectado';
+                }
+            }
+            
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+            function showLoading() {
+                loadingOverlay.classList.add('active');
+            }
+            function hideLoading() {
+                loadingOverlay.classList.remove('active');
+            }
+            async function preloadVideo(url) {
+                if (videoCache.has(url)) {
+                    console.log('Video ya en caché:', url);
+                    return videoCache.get(url);
+                }
+                try {
+                    console.log('Precargando video:', url);
+                    showLoading();
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Error al cargar el video: ${response.status}`);
+                    }
+                    const blob = await response.blob();
+                    const videoObjectUrl = URL.createObjectURL(blob);
+                    videoCache.set(url, {
+                        objectUrl: videoObjectUrl,
+                        blob: blob
+                    });
+                    console.log('Video precargado y en caché:', url);
+                    hideLoading();
+                    return videoCache.get(url);
+                } catch (error) {
+                    console.error('Error precargando video:', error);
+                    hideLoading();
+                    showNotification('Error al cargar el video', 'error');
+                    return null;
+                }
+            }
+            function showNotification(message, type = 'info') {
+                const messageContainer = document.querySelector('.message-container');
+                const notification = document.createElement('div');
+                notification.className = `message ${type}`;
+                let icon = 'info-circle';
+                if (type === 'success') icon = 'check-circle';
+                if (type === 'error') icon = 'exclamation-circle';
+                notification.innerHTML = `<i class="fas fa-${icon}"></i>${message}`;
+                messageContainer.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 5000);
+            }
+            async function playVideo(url, videoName) {
+                currentVideoUrl = url;
+                currentVideoName = videoName;
+                currentVideoTitle.textContent = videoName;
+                document.getElementById('player-section').scrollIntoView({ behavior: 'smooth' });
+                showLoading();
+                if (navigator.onLine) {
+                    const cachedVideo = await preloadVideo(url);
+                    if (cachedVideo) {
+                        videoPlayer.src = cachedVideo.objectUrl;
+                    } else {
+                        videoPlayer.src = url;
+                    }
+                } else {
+                    if (videoCache.has(url)) {
+                        videoPlayer.src = videoCache.get(url).objectUrl;
+                    } else {
+                        hideLoading();
+                        showNotification('Video no disponible sin conexión', 'error');
+                        return;
+                    }
+                }
+                const progressElement = document.querySelector(`.video-card[data-name="${videoName}"] .progress`);
+                if (progressElement) {
+                    const progressWidth = progressElement.style.width;
+                    if (progressWidth) {
+                        const progress = parseFloat(progressWidth) / 100;
+                        if (progress > 0 && progress < 0.95) {
+                            videoPlayer.addEventListener('loadedmetadata', function onLoaded() {
+                                const seekTime = progress * videoPlayer.duration;
+                                videoPlayer.currentTime = seekTime;
+                                videoPlayer.removeEventListener('loadedmetadata', onLoaded);
+                                hideLoading();
+                            });
+                        } else {
+                            hideLoading();
+                        }
+                    } else {
+                        hideLoading();
+                    }
+                } else {
+                    hideLoading();
+                }
+                videoPlayer.play().catch(e => {
+                    console.error('Error reproduciendo video:', e);
+                    hideLoading();
+                });
+            }
+            async function updateProgress() {
+                if (!currentVideoName || !videoPlayer.duration || isUpdatingProgress) return;
+                const progress = videoPlayer.currentTime / videoPlayer.duration;
+                if (isNaN(progress)) return;
+                const progressElement = document.querySelector(`.video-card[data-name="${currentVideoName}"] .progress`);
+                if (progressElement) {
+                    progressElement.style.width = `${progress * 100}%`;
+                }
+                if (navigator.onLine && progress > 0) {
+                    try {
+                        isUpdatingProgress = true;
+                        const response = await fetch('/api/update_progress', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                video_name: currentVideoName,
+                                progress: progress
+                            })
+                        });
+                        if (!response.ok) {
+                            throw new Error(`Error al actualizar progreso: ${response.status}`);
+                        }
+                    } catch (error) {
+                        console.error('Error guardando progreso:', error);
+                    } finally {
+                        isUpdatingProgress = false;
+                    }
+                }
+            }
+            setInterval(updateProgress, 5000);  
+            videoPlayer.addEventListener('pause', updateProgress);
+            videoPlayer.addEventListener('ended', function() {
+                const progressElement = document.querySelector(`.video-card[data-name="${currentVideoName}"] .progress`);
+                if (progressElement) {
+                    progressElement.style.width = '100%';
+                }
+                updateProgress();
+                showNotification('Reproducción completada', 'success');
+            });
+            
+            // Eventos de carga del video
+            videoPlayer.addEventListener('waiting', showLoading);
+            videoPlayer.addEventListener('playing', hideLoading);
+            
+            // Agregar eventos de clic a cada tarjeta de video
+            videoCards.forEach(card => {
+                const videoUrl = card.getAttribute('data-src');
+                const videoName = card.getAttribute('data-name');
+                
+                card.addEventListener('click', function() {
+                    playVideo(videoUrl, videoName);
+                });
+            });
+            videoPlayer.addEventListener('stalled', function() {
+                if (!navigator.onLine && currentVideoUrl && videoCache.has(currentVideoUrl)) {
+                    console.log('Video detenido, intentando reanudar desde caché');
+                    showLoading();
+                    const currentTime = videoPlayer.currentTime;
+                    videoPlayer.src = videoCache.get(currentVideoUrl).objectUrl;
+                    videoPlayer.currentTime = currentTime;
+                    videoPlayer.play().catch(e => {
+                        console.error('Error reanudando video:', e);
+                        hideLoading();
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
