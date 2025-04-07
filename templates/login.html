@@ -1,296 +1,221 @@
-<!-- templates/login.html -->
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --netflix-red:rgba(173, 173, 173, 0.52);
-            --netflix-red-hover:rgb(0, 255, 76);
-            --netflix-black:rgba(10, 7, 182, 0.55);
-            --netflix-dark:rgb(253, 0, 0);
-            --netflix-gray:rgb(255, 255, 255);
-            --netflix-light-gray:rgb(0, 46, 83);s
-            --netflix-white:rgb(255, 255, 255);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-        
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            background:rgba(29, 7, 158, 0.66),
-            color: var(--netflix-white);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .header {
-            width: 100%;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--netflix-red);
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-        
-        .logo i {
-            margin-right: 10px;
-        }
-        
-        .login-container {
-            width: 100%;
-            max-width: 450px;
-            margin: auto;
-            padding: 60px 68px;
-            background-color: #13164E;
-            border-radius: 4px;
-            box-shadow: 0 0 30px rgb(21, 25, 104);
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .form-title {
-            color: white;
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 28px;
-        }
-        
-        .message {
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .message i {
-            margin-right: 10px;
-            font-size: 20px;
-        }
-        
-        .success {
-            background-color: rgba(39, 174, 96, 0.2);
-            border-left: 4px solid #27AE60;
-        }
-        
-        .error {
-            background-color: rgba(229, 9, 20, 0.2);
-            border-left: 4px solid var(--netflix-red);
-        }
-        
-        .info {
-            background-color: rgba(41, 128, 185, 0.2);
-            border-left: 4px solid #2980B9;
-        }
-        
-        .form-group {
-            position: relative;
-            margin-bottom: 16px;
-        }
-        
-        .form-control {
-            width: 100%;
-            height: 50px;
-            background-color: var(--netflix-gray);
-            border: none;
-            border-radius: 4px;
-            color: var(--netflix-white);
-            padding: 16px 20px;
-            font-size: 16px;
-            outline: none;
-        }
-        
-        .form-control:focus {
-            background-color:rgba(255, 255, 255, 0.28);
-            box-shadow: 0 0 0 2px var(--netflix-red);
-        }
-        
-        .form-label {
-            position: absolute;
-            left: 20px;
-            top: 16px;
-            color: var(--netflix-light-gray);
-            pointer-events: none;
-            transition: all 0.2s ease;
-        }
-        
-        .form-control:focus ~ .form-label,
-        .form-control:not(:placeholder-shown) ~ .form-label {
-            top: -10px;
-            left: 10px;
-            font-size: 12px;
-            padding: 0 5px;
-            background-color: var(--netflix-gray);
-            border-radius: 2px;
-            color: var(--netflix-white);
-        }
-        
-        .form-control:focus ~ .form-label {
-            color: #13164E;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            height: 50px;
-            background-color: #38759C;
-            border: none;
-            border-radius: 4px;
-            color: var(--netflix-white);
-            font-size: 16px;
-            font-weight: 700;
-            margin-top: 24px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .submit-btn:hover {
-            background-color:rgba(56, 118, 156, 0.79);
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 5px 15px rgba(9, 79, 229, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-        
-        .form-footer {
-            margin-top: 16px;
-            color:rgb(192, 191, 191);
-            display: flex;
-            justify-content: center;
-            font-size: 14px;
-        }
-        
-        .form-footer a {
-            color: white;
-            text-decoration: none;
-            margin-left: 5px;
-        }
-        
-        .form-footer a:hover {
-            text-decoration: underline;
-            color: rgba(0, 195, 255, 0.48);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 768px) {
-            .login-container {
-                padding: 40px 30px;
-                margin: 20px;
-            }
-            
-            .form-title {
-                font-size: 28px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header {
-                padding: 15px 20px;
-            }
-            
-            .logo {
-                font-size: 24px;
-            }
-            
-            .login-container {
-                padding: 30px 20px;
-            }
-            
-            .form-title {
-                font-size: 24px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar sesión - VideoFlix</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #000;
+      overflow: hidden;
+    }
+
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .animated-bg span {
+      position: absolute;
+      display: block;
+      width: 30px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.03);
+      animation: rise 20s linear infinite;
+      bottom: -150px;
+      border-radius: 50%;
+      filter: blur(2px);
+    }
+
+    .animated-bg span:nth-child(1) { left: 5%; animation-duration: 22s; }
+    .animated-bg span:nth-child(2) { left: 15%; animation-duration: 27s; width: 25px; height: 25px; }
+    .animated-bg span:nth-child(3) { left: 30%; animation-duration: 19s; width: 40px; height: 40px; }
+    .animated-bg span:nth-child(4) { left: 50%; animation-duration: 24s; }
+    .animated-bg span:nth-child(5) { left: 70%; animation-duration: 21s; width: 20px; height: 20px; }
+    .animated-bg span:nth-child(6) { left: 85%; animation-duration: 26s; width: 35px; height: 35px; }
+    .animated-bg span:nth-child(7) { left: 95%; animation-duration: 23s; }
+
+    @keyframes rise {
+      0% { transform: translateY(0) scale(1); opacity: 0.3; }
+      100% { transform: translateY(-1200px) scale(1.8); opacity: 0; }
+    }
+
+    .overlay {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1;
+    }
+
+    .login-container {
+      position: relative;
+      background-color: rgba(0, 0, 0, 0.85);
+      padding: 60px 68px 40px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 400px;
+      color: #fff;
+      z-index: 2;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 36px;
+      font-weight: bold;
+      color: #e50914;
+      letter-spacing: 2px;
+      animation: logoFadeIn 1.5s ease-in-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes logoFadeIn {
+      0% { opacity: 0; transform: translateY(-30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 26px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 16px;
+      background: #333;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 16px;
+    }
+
+    .submit-btn {
+      background-color: #e50914;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      color: white;
+      font-size: 16px;
+      border-radius: 4px;
+      margin-top: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .submit-btn:hover {
+      background-color: #f40612;
+    }
+
+    .form-footer {
+      color: #aaa;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .form-footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .message {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 4px;
+      background-color: #333;
+      color: white;
+    }
+
+    .message i {
+      margin-right: 8px;
+    }
+
+    @media (max-width: 500px) {
+      .login-container {
+        padding: 40px 30px;
+      }
+
+      .logo {
+        font-size: 28px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <a href="{{ url_for('login') }}" class="logo">
-            <span> Reproductor de video </span>
-        </a>
-    </div>
-    
-    <div class="login-container">
-        <h1 class="form-title">Iniciar sesión</h1>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="message {{ category }}">
-                        {% if category == 'success' %}
-                            <i class="fas fa-check-circle"></i>
-                        {% elif category == 'error' %}
-                            <i class="fas fa-exclamation-circle"></i>
-                        {% else %}
-                            <i class="fas fa-info-circle"></i>
-                        {% endif %}
-                        {{ message }}
-                    </div>
-                {% endfor %}
+
+  <div class="animated-bg">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span>
+  </div>
+
+  <div class="overlay"></div>
+
+  <div class="login-container">
+    <div class="logo">VideoFlix</div>
+
+    <h1>Iniciar sesión</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}">
+            {% if category == 'success' %}
+              <i class="fas fa-check-circle"></i>
+            {% elif category == 'error' %}
+              <i class="fas fa-exclamation-circle"></i>
+            {% else %}
+              <i class="fas fa-info-circle"></i>
             {% endif %}
-        {% endwith %}
-        
-        <form method="post" action="{{ url_for('login') }}">
-            <div class="form-group">
-                <input type="text" id="username" name="username" class="form-control" required placeholder=" ">
-                <label for="username" class="form-label">Nombre de usuario</label>
-            </div>
-            
-            <div class="form-group">
-                <input type="password" id="password" name="password" class="form-control" required placeholder=" ">
-                <label for="password" class="form-label">Contraseña</label>
-            </div>
-            
-            <button type="submit" class="submit-btn">
-                <i class="fas fa-sign-in-alt"></i> Iniciar sesión
-            </button>
-        </form>
-        
-        <div class="form-footer">
-            ¿No tienes una cuenta?
-            <a href="{{ url_for('register') }}">Regístrate aqui</a>
-        </div>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <input type="text" name="username" class="form-control" required placeholder="Nombre de usuario">
+      </div>
+      <div class="form-group">
+        <input type="password" name="password" class="form-control" required placeholder="Contraseña">
+      </div>
+      <button type="submit" class="submit-btn">Iniciar sesión</button>
+    </form>
+
+    <div class="form-footer">
+      ¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a>
     </div>
-    
-    <script>
-        // Animación para los mensajes de alerta
-        document.addEventListener('DOMContentLoaded', function() {
-            const messages = document.querySelectorAll('.message');
-            
-            messages.forEach(message => {
-                setTimeout(() => {
-                    message.style.opacity = '0';
-                    setTimeout(() => {
-                        message.style.display = 'none';
-                    }, 300);
-                }, 5000);
-            });
-        });
-    </script>
+  </div>
 </body>
 </html>

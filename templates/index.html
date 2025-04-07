@@ -1,21 +1,297 @@
 <!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoFlix - Tu App de Streaming</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        
-    </style>
-</head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>VideoFlix</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+        <style>
+          body {
+            margin: 0;
+            font-family: 'Helvetica Neue', sans-serif;
+            background: radial-gradient(circle at 50% 50%, #141414, #000000);
+            color: white;
+          }
+
+          .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            }
+
+            .logo-img {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+            }
+
+            .logo-img:hover {
+            transform: scale(1.05);
+            }
+            
+
+      
+          header {
+            background-color: #111;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e50914;
+          }
+      
+          .logo span {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e50914;
+            letter-spacing: 1px;
+          }
+      
+          .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+          }
+      
+          .user-avatar {
+            background-color: #e50914;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+          }
+      
+          .connection-status {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+          }
+      
+          .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+          }
+      
+          .video-thumbnail-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #e50914;
+            transition: transform 0.3s ease;
+            display: block;
+            }
+
+            .video-card:hover .video-thumbnail-img {
+            transform: scale(1.05);
+            }
+
+
+          .online .status-indicator {
+            background: #0f0;
+          }
+      
+          .offline .status-indicator {
+            background: #f00;
+          }
+      
+          .logout-btn {
+            color: #fff;
+            text-decoration: underline;
+            font-size: 14px;
+          }
+      
+          .container {
+            padding: 0px 50px;
+          }
+      
+          .section-title {
+            font-size: 22px;
+            margin: 40px 0 10px;
+            color: #e50914;
+          }
+      
+          .video-title {
+            font-size: 18px;
+            color: #b7b4b4;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            }
+
+
+          .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+          }
+      
+          .video-card {
+            background-color: #222;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(156, 156, 156, 0.6);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+          }
+      
+          .video-card:hover {
+            transform: scale(1.05);
+          }
+      
+          .video-card video,
+          .video-thumbnail {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+          }
+      
+          .video-info {
+            padding: 10px;
+          }
+      
+          .video-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+          }
+      
+          .play-overlay {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+          }
+      
+          .video-card:hover .play-overlay {
+            opacity: 1;
+          }
+      
+          .play-icon i {
+            font-size: 30px;
+            color: #fff;
+          }
+      
+          .progress-container {
+            margin-top: 5px;
+          }
+      
+          .progress-bar {
+            background-color: #444;
+            height: 4px;
+            width: 100%;
+            border-radius: 2px;
+          }
+      
+          .progress {
+            height: 100%;
+            background-color: #e50914;
+            width: 0;
+            border-radius: 2px;
+          }
+      
+          .player-section {
+            margin-top: 50px;
+          }
+      
+          .video-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+          }
+      
+          .video-player-container {
+            position: relative;
+            max-width: 100%;
+          }
+      
+          .video-player {
+            width: 100%;
+            border-radius: 8px;
+          }
+      
+          .loading-overlay {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
+          }
+      
+          .loading-overlay.active {
+            display: flex;
+          }
+      
+          .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #e50914;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+          }
+      
+          @keyframes spin {
+            to {
+              transform: rotate(360deg);
+            }
+          }
+      
+          .message-container {
+            margin: 10px 0;
+          }
+      
+          .message {
+            background: #333;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            animation: fadeIn 0.3s ease;
+          }
+      
+          .message.success { border-left: 4px solid #2ecc71; }
+          .message.error { border-left: 4px solid #e74c3c; }
+          .message.info { border-left: 4px solid #3498db; }
+      
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+      
+          @media (max-width: 768px) {
+            .container {
+              padding: 20px;
+            }
+          }
+        </style>
+      </head>
 <body>
     <header>
         <div class="container header-content">
             <div class="logo">
-                <span>Servicio de streaming</span>
+                <img src="{{ url_for('static', filename='image.png') }}" alt="VideoFlix Logo" class="logo-img">
+                <span>VideoFlix</span>
             </div>
             <div class="user-info">
                 <div class="user-profile">
@@ -60,27 +336,37 @@
             </h2>
             <div class="video-grid">
                 {% for video in videos %}
-                <div class="video-card" data-src="/videos/{{ video }}">
-                    <video width="320" height="240" controls>
-                        <source src="/videos/{{ video }}" type="video/mp4">
-                        Tu navegador no soporta la reproducción de videos.
-                    </video>
-                    <div class="video-info">
-                        <div class="video-name">{{ video }}</div>
+                <div class="video-card" data-src="/videos/{{ video }}" data-name="{{ video }}">
+                  <img src="{{ url_for('static', filename='thumbnails/' + video.replace('.mp4', '.png')) }}"
+                       alt="Miniatura de {{ video }}"
+                       class="video-thumbnail-img">
+                  <div class="video-info">
+                    <div class="video-name">
+                      {{ video.replace('.mp4', '').replace('-', ' ').replace('_', ' ').replace('.', ' ').title() }}
                     </div>
+                    <div class="progress-container">
+                      <div class="progress-bar">
+                        <div class="progress" style="width: {{ history.get(video, 0) * 100 }}%;"></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 {% endfor %}
-            </div>
+              </div>
+              
+            
             <h2 class="section-title">
                 <i class="fas fa-film"></i>
-                Videos en linea
+                Videos en línea
             </h2>
             
             <div class="video-grid" id="video-grid">
                 {% for video in videos %}
                 <div class="video-card" data-src="/videos/{{ video }}" data-name="{{ video }}">
-                    <div class="video-thumbnail">
-                        <i class="fas fa-film"></i>
+                    <div class="video-thumbnail-container">
+                        <img src="{{ url_for('static', filename='thumbnails/' + video.replace('.mp4', '.png')) }}"
+                             alt="Miniatura de {{ video }}"
+                             class="video-thumbnail-img" />
                         <div class="play-overlay">
                             <div class="play-icon">
                                 <i class="fas fa-play"></i>
@@ -88,7 +374,9 @@
                         </div>
                     </div>
                     <div class="video-info">
-                        <div class="video-name">{{ video }}</div>
+                        <div class="video-name">
+                          {{ video.replace('.mp4', '').replace('-', ' ').replace('_', ' ').replace('.', ' ').title() }}
+                        </div>
                         <div class="progress-container">
                             <div class="progress-bar">
                                 <div class="progress" style="width: {{ history.get(video, 0) * 100 }}%;"></div>
@@ -98,6 +386,8 @@
                 </div>
                 {% endfor %}
             </div>
+            
+            
         </div>
         <div class="player-section" id="player-section">
             <div class="video-title" id="current-video-title">Selecciona un video para reproducir</div>
@@ -217,7 +507,11 @@
                         return;
                     }
                 }
-                const progressElement = document.querySelector(`.video-card[data-name="${videoName}"] .progress`);
+                const progressElements = document.querySelectorAll(`.video-card[data-name="${videoName}"] .progress`);
+                progressElements.forEach(element => {
+                    element.style.width = `${progress * 100}%`;
+                });
+
                 if (progressElement) {
                     const progressWidth = progressElement.style.width;
                     if (progressWidth) {
@@ -247,10 +541,11 @@
                 if (!currentVideoName || !videoPlayer.duration || isUpdatingProgress) return;
                 const progress = videoPlayer.currentTime / videoPlayer.duration;
                 if (isNaN(progress)) return;
-                const progressElement = document.querySelector(`.video-card[data-name="${currentVideoName}"] .progress`);
-                if (progressElement) {
-                    progressElement.style.width = `${progress * 100}%`;
-                }
+                const progressElements = document.querySelectorAll(`.video-card[data-name="${currentVideoName}"] .progress`);
+                progressElements.forEach(el => {
+                    el.style.width = `${progress * 100}%`;
+                });
+
                 if (navigator.onLine && progress > 0) {
                     try {
                         isUpdatingProgress = true;
@@ -277,10 +572,11 @@
             setInterval(updateProgress, 5000);  
             videoPlayer.addEventListener('pause', updateProgress);
             videoPlayer.addEventListener('ended', function() {
-                const progressElement = document.querySelector(`.video-card[data-name="${currentVideoName}"] .progress`);
-                if (progressElement) {
-                    progressElement.style.width = '100%';
-                }
+                const progressElements = document.querySelectorAll(`.video-card[data-name="${currentVideoName}"] .progress`);
+                progressElements.forEach(el => {
+                    el.style.width = '100%';
+                });
+
                 updateProgress();
                 showNotification('Reproducción completada', 'success');
             });
